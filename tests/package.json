@@ -1,0 +1,16 @@
+{
+  "name": "marketplace-tests",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "bun test --timeout 30000",
+    "test:e2e": "RUN_E2E=1 bun test e2e --timeout 1200000"
+  },
+  "dependencies": {
+    "yaml": "^2.6.0",
+    "ajv": "^8.17.1"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.13"
+  }
+}

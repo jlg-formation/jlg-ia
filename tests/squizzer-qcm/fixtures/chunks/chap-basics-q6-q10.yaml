@@ -1,0 +1,9 @@
+chapter_id: basics
+chapter_title: "Notions de base"
+chapter_order: 0
+questions:
+  - id: q2
+    question: "Quel gaz est principalement responsable de l'effet de serre ?"
+    answers: ["Azote", "Dioxyde de carbone", "Argon", "Hélium"]
+    correct: 1
+    explanation: "CO2 atmosphérique."

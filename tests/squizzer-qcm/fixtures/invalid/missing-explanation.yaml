@@ -1,0 +1,9 @@
+title: "Champ explanation manquant"
+chapters:
+  - id: basics
+    title: "Base"
+    questions:
+      - id: q1
+        question: "Question sans explication ?"
+        answers: ["A", "B", "C", "D"]
+        correct: 0

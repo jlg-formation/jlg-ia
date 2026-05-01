@@ -1,0 +1,10 @@
+title: "Index correct hors bornes"
+chapters:
+  - id: basics
+    title: "Base"
+    questions:
+      - id: q1
+        question: "Question dont l'index correct est invalide ?"
+        answers: ["A", "B", "C", "D"]
+        correct: 5
+        explanation: "Devrait être rejeté."

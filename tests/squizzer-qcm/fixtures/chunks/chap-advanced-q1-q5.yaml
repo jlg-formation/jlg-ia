@@ -1,0 +1,9 @@
+chapter_id: advanced
+chapter_title: "Notions avancées"
+chapter_order: 1
+questions:
+  - id: q1
+    question: "Quelle particule médiatise l'interaction électromagnétique ?"
+    answers: ["Gluon", "Photon", "Boson W", "Graviton"]
+    correct: 1
+    explanation: "Photon, boson de jauge."

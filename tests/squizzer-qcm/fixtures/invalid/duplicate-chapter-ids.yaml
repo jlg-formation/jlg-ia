@@ -1,0 +1,18 @@
+title: "IDs de chapitres dupliqués"
+chapters:
+  - id: basics
+    title: "Premier chapitre"
+    questions:
+      - id: q1
+        question: "Une question dans le premier chapitre ?"
+        answers: ["A", "B", "C", "D"]
+        correct: 0
+        explanation: "ok"
+  - id: basics
+    title: "Deuxième chapitre avec même id"
+    questions:
+      - id: q1
+        question: "Une question dans le second chapitre ?"
+        answers: ["A", "B", "C", "D"]
+        correct: 0
+        explanation: "ko"

@@ -1,0 +1,15 @@
+title: "Questions quasi-identiques"
+chapters:
+  - id: basics
+    title: "Base"
+    questions:
+      - id: q1
+        question: "Quelle est la capitale historique principale officielle moderne France ?"
+        answers: ["Paris", "Lyon", "Marseille", "Toulouse"]
+        correct: 0
+        explanation: "ok"
+      - id: q2
+        question: "Quelle est la capitale historique principale officielle moderne France actuelle ?"
+        answers: ["Paris", "Lyon", "Marseille", "Toulouse"]
+        correct: 0
+        explanation: "doublon."

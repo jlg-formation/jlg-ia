@@ -1,0 +1,15 @@
+title: "IDs de questions dupliqués"
+chapters:
+  - id: basics
+    title: "Base"
+    questions:
+      - id: q1
+        question: "Première question avec id q1 ?"
+        answers: ["A", "B", "C", "D"]
+        correct: 0
+        explanation: "ok"
+      - id: q1
+        question: "Deuxième question avec le même id q1 ?"
+        answers: ["A", "B", "C", "D"]
+        correct: 1
+        explanation: "ko duplicate"

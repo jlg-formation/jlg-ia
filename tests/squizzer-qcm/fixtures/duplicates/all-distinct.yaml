@@ -1,0 +1,20 @@
+title: "Questions toutes distinctes"
+chapters:
+  - id: basics
+    title: "Base"
+    questions:
+      - id: q1
+        question: "Quelle est la capitale de la France ?"
+        answers: ["Paris", "Lyon", "Marseille", "Toulouse"]
+        correct: 0
+        explanation: "Capitale historique."
+      - id: q2
+        question: "Combien de continents existe-t-il sur Terre ?"
+        answers: ["Cinq", "Six", "Sept", "Huit"]
+        correct: 2
+        explanation: "Selon le découpage classique."
+      - id: q3
+        question: "Qui a peint la Joconde au début du XVIe siècle ?"
+        answers: ["Michel-Ange", "Léonard de Vinci", "Raphaël", "Botticelli"]
+        correct: 1
+        explanation: "Tableau exposé au Louvre."

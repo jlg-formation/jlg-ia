@@ -1,0 +1,23 @@
+title: "QCM minimal"
+chapters:
+  - id: basics
+    title: "Notions de base"
+    questions:
+      - id: q1
+        question: "Quelle est la couleur du ciel par temps clair ?"
+        answers: ["Bleu", "Vert", "Jaune", "Rouge"]
+        correct: 0
+        explanation: "Diffusion de Rayleigh."
+      - id: q2
+        question: "Combien font deux plus deux ?"
+        answers: ["Trois", "Quatre", "Cinq", "Six"]
+        correct: 1
+        explanation: "Arithmétique élémentaire."
+  - id: advanced
+    title: "Notions avancées"
+    questions:
+      - id: q1
+        question: "Quel théorème relie les côtés d'un triangle rectangle ?"
+        answers: ["Thalès", "Pythagore", "Euclide", "Fermat"]
+        correct: 1
+        explanation: "a² + b² = c²."

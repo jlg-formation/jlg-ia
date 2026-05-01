@@ -1,0 +1,10 @@
+title: "Mauvais nombre de réponses"
+chapters:
+  - id: basics
+    title: "Base"
+    questions:
+      - id: q1
+        question: "Question avec seulement 3 réponses ?"
+        answers: ["A", "B", "C"]
+        correct: 0
+        explanation: "Devrait être rejeté par le schéma."
