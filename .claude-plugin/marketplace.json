@@ -8,7 +8,7 @@
   },
   "plugins": [
     {
-      "name": "jlg-ia",
+      "name": "orsys",
       "source": "./plugins/orsys",
       "description": "ORSYS stuff plugins",
       "version": "1.0.0",
