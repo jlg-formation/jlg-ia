@@ -103,9 +103,9 @@ Une fois installé, le skill `orsys-formation-plan` est disponible. Demande par 
 
 ---
 
-## 🧩 Installer les skills via `npx skills` (Anthropic Skills CLI)
+## 🧩 Installer les skills via `npx skills` (Open Agent Skills CLI)
 
-Les skills de cette marketplace peuvent aussi être consommés indépendamment de l'écosystème plugin via la commande [`npx skills`](https://www.npmjs.com/package/skills) (CLI Anthropic pour gérer les skills Claude).
+Les skills de cette marketplace sont aussi installables indépendamment de l'écosystème plugin Claude Code, grâce à la CLI [`skills`](https://github.com/vercel-labs/skills) (compatible Claude Code, Cursor, Codex, OpenCode, etc.).
 
 ### Étape 1 — Pré-requis
 
@@ -117,49 +117,75 @@ Vérifie :
 ```bash
 node --version
 npx --version
+npx skills --help
 ```
 
 ### Étape 2 — Lister les skills disponibles dans la marketplace
 
+Avant d'installer, tu peux lister les skills présents dans le dépôt :
+
 ```bash
-npx skills list github:jlguenego/jlg-ia
+npx skills add jlguenego/jlg-ia --list
 ```
 
-### Étape 3 — Installer un skill spécifique
+### Étape 3 — Installer le skill `orsys-formation-plan`
 
-Pour installer le skill `orsys-formation-plan` :
+La commande exacte avec un chemin direct vers le sous-dossier du plugin :
 
 ```bash
-npx skills install github:jlguenego/jlg-ia/plugins/orsys/skills/orsys-formation-plan
+npx skills add https://github.com/jlguenego/jlg-ia/tree/master/plugins/orsys
 ```
 
-Le skill sera installé dans le dossier standard des skills Claude :
+> 💡 La CLI détecte automatiquement les agents installés (Claude Code, Cursor, Codex, …) et y déploie les skills. Utilise `-a claude-code` pour cibler uniquement Claude Code.
 
-- **macOS / Linux** : `~/.claude/skills/`
-- **Windows** : `%USERPROFILE%\.claude\skills\`
-
-### Étape 4 — Installer tous les skills du plugin `orsys`
+#### Variantes utiles
 
 ```bash
-npx skills install github:jlguenego/jlg-ia/plugins/orsys
+# Installation globale (utilisateur), au lieu du projet courant
+npx skills add https://github.com/jlguenego/jlg-ia/tree/master/plugins/orsys -g
+
+# Installer uniquement pour Claude Code
+npx skills add https://github.com/jlguenego/jlg-ia/tree/master/plugins/orsys -a claude-code
+
+# Installer un skill nommé précis
+npx skills add jlguenego/jlg-ia --skill orsys-formation-plan
+
+# Tout installer sans confirmation (CI/CD)
+npx skills add jlguenego/jlg-ia --all
 ```
 
-### Étape 5 — Vérifier l'installation
+### Emplacements d'installation
+
+Selon l'agent et la portée (projet vs global) :
+
+| Agent       | Projet              | Global (`-g`)       |
+| ----------- | ------------------- | ------------------- |
+| Claude Code | `./.claude/skills/` | `~/.claude/skills/` |
+| Cursor      | `./.agents/skills/` | `~/.cursor/skills/` |
+| Codex       | `./.agents/skills/` | `~/.codex/skills/`  |
+
+Sous Windows, `~` correspond à `%USERPROFILE%`.
+
+### Étape 4 — Vérifier l'installation
 
 ```bash
-npx skills list --installed
+npx skills list           # skills du projet
+npx skills ls -g          # skills globaux
+npx skills ls -a claude-code
 ```
 
-### Mettre à jour un skill
+### Mettre à jour
 
 ```bash
-npx skills update orsys-formation-plan
+npx skills update                      # tout mettre à jour
+npx skills update orsys-formation-plan # un skill précis
 ```
 
 ### Désinstaller
 
 ```bash
-npx skills uninstall orsys-formation-plan
+npx skills remove orsys-formation-plan
+npx skills remove --all                # tout retirer
 ```
 
 ---
