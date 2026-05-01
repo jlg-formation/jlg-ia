@@ -1,6 +1,7 @@
 ---
 name: squizzer-qcm
 description: Génère un fichier YAML de QCM pour le site Squizzer à partir d'un sujet, d'un fichier markdown de plan de formation, ou d'une URL de plan de formation. Utilise des subagents en vagues parallèles pour produire des centaines de questions, puis assemble et valide via des scripts bun.
+disable-model-invocation: true
 ---
 
 # squizzer-qcm
