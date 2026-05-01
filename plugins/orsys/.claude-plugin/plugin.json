@@ -1,0 +1,11 @@
+{
+  "name": "orsys",
+  "description": "Jean-Louis GUENEGO plugin for orsys",
+  "version": "1.0.0",
+  "author": {
+    "name": "Jean-Louis GUENEGO"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/jlguenego/jlg-ia",
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json"
+}
