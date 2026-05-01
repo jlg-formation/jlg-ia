@@ -1,0 +1,11 @@
+{
+  "name": "jlg-ia",
+  "description": "Jean-Louis GUENEGO plugin for all kinds of stuff",
+  "version": "1.0.0",
+  "author": {
+    "name": "Jean-Louis GUENEGO"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/",
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json"
+}
