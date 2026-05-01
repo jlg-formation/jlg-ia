@@ -30,10 +30,12 @@ Cette marketplace contient des plugins et skills réutilisables pour Claude Code
 
 Claude Code (CLI) supporte un système de **marketplaces** permettant d'ajouter des plugins externes hébergés sur GitHub.
 
+Toutes les commandes ci-dessous sont à lancer **depuis ton shell** (PowerShell, bash, zsh…), pas en mode interactif dans Claude Code.
+
 ### Étape 1 — Pré-requis
 
 - [Claude Code CLI](https://docs.claude.com/en/docs/claude-code) installé et fonctionnel
-- Un compte GitHub (le dépôt est public, aucun token requis)
+- Accès HTTPS à GitHub (le dépôt est public, aucun token requis)
 
 Vérifie que la commande `claude` est disponible :
 
@@ -41,34 +43,39 @@ Vérifie que la commande `claude` est disponible :
 claude --version
 ```
 
-### Étape 2 — Ajouter la marketplace
+### Étape 2 — Ajouter la marketplace (HTTPS)
 
-Dans une session Claude Code, lance la commande slash :
-
-```
-/plugin marketplace add jlguenego/jlg-ia
+```bash
+claude plugin marketplace add https://github.com/jlguenego/jlg-ia
 ```
 
-> 💡 Le format `owner/repo` cible automatiquement le dépôt GitHub `https://github.com/jlguenego/jlg-ia`.
+> 💡 Le format raccourci `owner/repo` fonctionne aussi et résout vers la même URL HTTPS :
+>
+> ```bash
+> claude plugin marketplace add jlguenego/jlg-ia
+> ```
 
-Tu peux aussi utiliser l'URL complète :
+<details>
+<summary>Variante SSH (déconseillée — nécessite une clé SSH GitHub configurée)</summary>
 
+```bash
+claude plugin marketplace add git@github.com:jlguenego/jlg-ia.git
 ```
-/plugin marketplace add https://github.com/jlguenego/jlg-ia
-```
+
+</details>
 
 ### Étape 3 — Vérifier que la marketplace est bien enregistrée
 
-```
-/plugin marketplace list
+```bash
+claude plugin marketplace list
 ```
 
 Tu dois voir apparaître la marketplace **`jlg-ia`**.
 
 ### Étape 4 — Installer le plugin
 
-```
-/plugin install orsys@jlg-ia
+```bash
+claude plugin install orsys@jlg-ia
 ```
 
 La syntaxe est `<plugin-name>@<marketplace-name>` :
@@ -76,29 +83,29 @@ La syntaxe est `<plugin-name>@<marketplace-name>` :
 - **`orsys`** : nom du plugin (défini dans `plugins/orsys/.claude-plugin/plugin.json`)
 - **`jlg-ia`** : nom de la marketplace (défini dans `.claude-plugin/marketplace.json`)
 
-Tu peux aussi parcourir interactivement les plugins disponibles :
+Pour parcourir interactivement les plugins disponibles :
 
-```
-/plugin
+```bash
+claude plugin
 ```
 
 ### Étape 5 — Activer / utiliser le plugin
 
-Une fois installé, le skill `orsys-formation-plan` est disponible. Demande par exemple :
+Une fois installé, le skill `orsys-formation-plan` est disponible dans tes sessions Claude Code. Demande par exemple :
 
 > « Génère-moi un plan de formation ORSYS sur le RAG opérationnel sur 2 jours. »
 
 ### Mettre à jour la marketplace
 
-```
-/plugin marketplace update jlg-ia
+```bash
+claude plugin marketplace update jlg-ia
 ```
 
 ### Désinstaller
 
-```
-/plugin uninstall orsys@jlg-ia
-/plugin marketplace remove jlg-ia
+```bash
+claude plugin uninstall orsys@jlg-ia
+claude plugin marketplace remove jlg-ia
 ```
 
 ---
