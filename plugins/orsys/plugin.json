@@ -1,0 +1,12 @@
+{
+  "name": "orsys",
+  "description": "Outils ORSYS — génération de plans de formation et de QCM Squizzer. Compatible Claude Code et GitHub Copilot (custom agent plugins).",
+  "version": "1.0.0",
+  "author": {
+    "name": "Jean-Louis GUENEGO",
+    "email": "jlguenego@gmail.com"
+  },
+  "license": "MIT",
+  "agents": "agents/",
+  "repository": "https://github.com/jlguenego/jlg-ia"
+}

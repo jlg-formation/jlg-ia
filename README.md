@@ -6,6 +6,28 @@ Cette marketplace contient des plugins et skills réutilisables pour Claude Code
 
 - **`orsys`** — Outils pour la création de plans de formation au format ORSYS
   - Skill **`orsys-formation-plan`** : génère un plan de formation professionnelle structuré à partir d'un sujet et d'une durée.
+  - Skill **`squizzer-qcm`** : génère un fichier YAML de QCM pour le site Squizzer (orchestration multi-subagents, validation par schéma JSON, déduplication).
+  - Agent **`orsys-general-purpose`** : agent générique réutilisable du plugin, déclaré au format `*.agent.md` pour être découvert à la fois par Claude Code et par GitHub Copilot (cf. [Custom Agent Plugins](https://code.visualstudio.com/docs/copilot/customization/agent-plugins)). Préfixé `orsys-` pour éviter tout conflit avec un agent du même nom dans un autre plugin ou avec un built-in.
+
+### Compatibilité Claude Code / GitHub Copilot
+
+Ce plugin suit la **structure commune** aux deux écosystèmes :
+
+```
+plugins/orsys/
+├── plugin.json              # Manifeste racine (Copilot)
+├── .claude-plugin/
+│   └── plugin.json          # Manifeste Claude Code (équivalent)
+├── agents/
+│   └── orsys-general-purpose.agent.md
+└── skills/
+    ├── orsys-formation-plan/
+    └── squizzer-qcm/
+```
+
+Sous **GitHub Copilot (VSCode)**, le plugin peut être installé via la commande de palette **« Chat: Install Plugin From Source »** en fournissant l'URL du dépôt, ou via la recherche `@agentPlugins` dans l'onglet Extensions.
+
+⚠️ **Limite connue** : Copilot exécute les sous-agents **séquentiellement**. Le skill `squizzer-qcm`, qui repose sur des vagues de 4 subagents en parallèle sous Claude Code, fonctionne sous Copilot mais en série (plus lent).
 
 ---
 
