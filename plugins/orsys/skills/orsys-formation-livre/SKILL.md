@@ -50,13 +50,76 @@ Si `plan` n'est pas fourni, demander le chemin avant de démarrer.
 - `<chapitre-slug>` et `<bullet-slug>` : kebab-case sans accents, dérivés des titres et bullet points.
 - Préfixe numérique `01-`, `02-`, … pour préserver l'ordre du plan.
 
-**Idempotence :** si `<racine_sortie>/<slug-formation>/` existe déjà, **écraser intégralement** (suppression puis régénération). Aucune fusion, aucun suffixe `-v2`.
+**Idempotence et reprise sur interruption :**
+
+La génération d'un livre est longue et peut être interrompue (timeout, perte de connexion, arrêt manuel). Le skill doit garantir une **vraie reprise** : relancer la commande sur un livre partiellement généré ne doit **jamais** retravailler ce qui a déjà été produit, et doit reprendre exactement là où la génération s'est arrêtée.
+
+### Fichier d'état `.livre-state.json`
+
+À la racine `<racine_sortie>/<slug-formation>/`, maintenir un fichier `.livre-state.json` qui sert de **source de vérité** sur l'avancement. Schéma :
+
+```json
+{
+  "version": 1,
+  "slug_formation": "kebab-case-du-titre",
+  "plan_source": "chemin/absolu/vers/plan.md",
+  "plan_hash": "sha256-du-contenu-du-plan-source",
+  "parametres": { "niveau": "intermediaire", "langue": "fr" },
+  "cree_le": "ISO-8601",
+  "mis_a_jour_le": "ISO-8601",
+  "phase": "plan-directeur" | "redaction" | "assemblage" | "termine",
+  "plan_directeur": { /* fiches par bullet + glossaire global, gelé en phase 1 */ },
+  "bullets": [
+    {
+      "id": "01-chapitre-slug/02-bullet-slug",
+      "chemin": "01-chapitre-slug/02-bullet-slug.md",
+      "statut": "a_faire" | "en_cours" | "fait",
+      "contenu_hash": "sha256-du-fichier-produit-ou-null",
+      "fiche_hash": "sha256-de-la-fiche-du-plan-directeur"
+    }
+  ],
+  "assemblage": {
+    "readme_racine": "a_faire" | "fait",
+    "readmes_chapitres": "a_faire" | "fait",
+    "preface": "a_faire" | "fait",
+    "bibliographie": "a_faire" | "fait",
+    "verification_liens": "a_faire" | "fait"
+  }
+}
+```
+
+### Algorithme de démarrage (obligatoire avant toute action)
+
+1. **Si `<racine_sortie>/<slug-formation>/` n'existe pas** → création + `.livre-state.json` initial avec `phase: "plan-directeur"`.
+2. **Si le répertoire existe sans `.livre-state.json`** → considérer comme corrompu / artefact ancien. **Demander confirmation explicite** à l'utilisateur avant tout écrasement. Ne jamais supprimer silencieusement.
+3. **Si `.livre-state.json` existe** :
+   - Recalculer `plan_hash` du fichier d'entrée. S'il diffère de celui stocké → **demander à l'utilisateur** s'il souhaite (a) reprendre malgré le changement de plan, (b) repartir de zéro (suppression explicite confirmée), (c) annuler.
+   - Si `phase == "termine"` → informer l'utilisateur, ne rien faire sauf si `--force` explicite.
+   - Sinon → **reprendre à la phase indiquée**, en sautant tout ce qui est déjà `fait`.
+
+### Règles de reprise par phase
+
+- **Phase 1 (plan directeur)** : si `plan_directeur` est présent dans l'état, le réutiliser tel quel. Sinon, le générer et le persister immédiatement avant de passer à la phase 2.
+- **Phase 2 (rédaction)** : ne lancer de sous-agent **que** pour les bullets dont `statut != "fait"`. Avant chaque lot, recharger l'état depuis le disque (un autre run a pu progresser). Après chaque sous-agent terminé :
+  1. vérifier que le fichier produit existe et n'est pas vide ;
+  2. calculer son hash ;
+  3. mettre à jour l'entrée correspondante (`statut: "fait"`, `contenu_hash`, `mis_a_jour_le`) ;
+  4. **réécrire `.livre-state.json` de manière atomique** (écriture dans `.livre-state.json.tmp` puis rename).
+- **Phase 3 (assemblage)** : chaque sous-étape (`readme_racine`, `readmes_chapitres`, `preface`, `bibliographie`, `verification_liens`) est tracée individuellement et passée à `fait` après écriture + flush de l'état.
+
+### Garanties
+
+- **Aucune perte de travail** : un bullet rédigé reste sur le disque même si l'orchestrateur est tué.
+- **Pas de double rédaction** : un bullet `fait` n'est jamais relancé tant que sa `fiche_hash` n'a pas changé.
+- **Détection de dérive** : si la fiche d'un bullet déjà `fait` change (parce que le plan directeur a été régénéré), repasser ce bullet à `a_faire` et le ré-rédiger.
+- **Écriture atomique** : tout `.livre-state.json` est écrit via fichier temporaire + rename pour éviter un état corrompu en cas d'interruption pendant l'écriture.
+- **Pas d'écrasement implicite** : seule une reprise propre ou une demande explicite de l'utilisateur peut détruire un livre existant. Aucune suppression silencieuse, aucun suffixe `-v2`.
 
 ## Pipeline en 3 phases
 
 ### Phase 1 — Plan directeur (séquentiel)
 
-Avant toute rédaction, l'orchestrateur produit un **plan directeur** interne (mémoire de travail, non livré) qui sert de contrat à tous les sous-agents rédacteurs.
+Avant toute rédaction, l'orchestrateur produit un **plan directeur** qui sert de contrat à tous les sous-agents rédacteurs. Ce plan est **persisté dans `.livre-state.json`** (clé `plan_directeur`) afin d'être réutilisé tel quel en cas de reprise après interruption.
 
 Pour **chaque bullet point** du plan d'entrée, établir une fiche contenant :
 
@@ -126,8 +189,10 @@ L'orchestrateur **ne rédige pas** lui-même le contenu des bullet points : il p
 ## Checklist avant de livrer
 
 - [ ] `<slug-formation>` correctement dérivé du titre `#` de niveau 1
-- [ ] Si répertoire pré-existant : écrasé puis régénéré
-- [ ] Plan directeur établi (en mémoire) avec fiche par bullet et glossaire global
+- [ ] `.livre-state.json` créé / chargé au démarrage et flushé atomiquement après chaque étape
+- [ ] Reprise effective : aucun bullet `fait` n'est re-rédigé sauf changement de fiche détecté
+- [ ] Aucune suppression de répertoire existant sans confirmation explicite de l'utilisateur
+- [ ] Plan directeur établi puis persisté dans l'état avant la phase 2
 - [ ] 1 fichier Markdown par bullet point du plan d'entrée
 - [ ] Chaque fichier : 800–1200 mots, structure 7 sections, Mermaid uniquement
 - [ ] Code en TypeScript / Bun lorsque pertinent
