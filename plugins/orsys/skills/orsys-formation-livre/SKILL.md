@@ -128,8 +128,8 @@ Pour **chaque bullet point** du plan d'entrée, établir une fiche contenant :
 - **Notions abordées** : liste courte des concepts clés.
 - **Pré-requis** : notions déjà vues, à référencer en arrière (liens Markdown relatifs).
 - **Annonces** : notions à venir, à référencer en avant.
-- **Code prévu** : si TypeScript/Bun pertinent, sujet de l'exemple.
-- **Diagrammes envisagés** : type Mermaid (flux, séquence, classe, état, ER, gantt…).
+- **Code prévu** _(optionnel)_ : sujet de l'exemple TypeScript/Bun **uniquement si** un extrait de code apporte une réelle valeur pédagogique. Laisser vide sinon — ne jamais ajouter de code « pour faire joli ».
+- **Diagrammes envisagés** _(optionnel)_ : type Mermaid (flux, séquence, classe, état, ER, gantt…) **uniquement si** un schéma clarifie réellement le propos. Laisser vide sinon — ne jamais ajouter de diagramme décoratif.
 - **Glossaire local** : 2 à 5 termes nouveaux introduits.
 
 Constituer aussi un **glossaire global** unique (nom canonique de chaque concept) pour éviter divergences terminologiques entre sous-agents.
@@ -155,11 +155,13 @@ Chaque sous-agent **écrit directement** son fichier `<racine_sortie>/<slug-form
 - **Structure imposée** :
   1. **Problématique** — exposition claire de la question traitée.
   2. **Développement pédagogique** — explication progressive.
-  3. **Illustrations Mermaid** — uniquement Mermaid, jamais d'image externe (PNG/SVG/JPG interdits).
-  4. **Code TypeScript / Bun** — extraits commentés lorsque le sujet s'y prête.
+  3. **Illustrations Mermaid** _(optionnel)_ — **uniquement si** un schéma apporte une réelle plus-value pédagogique (clarifier un flux, une architecture, un cycle de vie, une relation…). Si Mermaid est utilisé, c'est exclusivement Mermaid, jamais d'image externe (PNG/SVG/JPG interdits). **Ne jamais ajouter de diagramme décoratif** : un sujet purement conceptuel ou narratif peut très bien se passer de schéma.
+  4. **Code TypeScript / Bun** _(optionnel)_ — extraits commentés **uniquement si** le sujet s'y prête réellement et si le code éclaire un point qui resterait flou sans lui. **Ne jamais ajouter de code « pour faire technique »** : un chapitre conceptuel, méthodologique ou théorique n'a pas besoin d'exemple de code.
   5. **Exemples concrets** — cas d'usage, analogies, mises en situation.
   6. **Réponse à la problématique** — synthèse explicite qui boucle sur l'introduction.
   7. **Renvois** — liens Markdown relatifs vers les autres bullet points / chapitres concernés.
+
+> **Règle d'or sur les diagrammes et le code** : ils sont **strictement optionnels**. Le critère unique est l'**intérêt pédagogique**. Mieux vaut un chapitre sans aucun diagramme ni code qu'un chapitre alourdi par des illustrations gratuites. Un sous-agent qui ajoute systématiquement un Mermaid ou un bloc TypeScript à chaque fichier viole le contrat.
 
 ### Phase 3 — Assemblage (séquentiel)
 
@@ -194,8 +196,9 @@ L'orchestrateur **ne rédige pas** lui-même le contenu des bullet points : il p
 - [ ] Aucune suppression de répertoire existant sans confirmation explicite de l'utilisateur
 - [ ] Plan directeur établi puis persisté dans l'état avant la phase 2
 - [ ] 1 fichier Markdown par bullet point du plan d'entrée
-- [ ] Chaque fichier : 800–1200 mots, structure 7 sections, Mermaid uniquement
-- [ ] Code en TypeScript / Bun lorsque pertinent
+- [ ] Chaque fichier : 800–1200 mots, structure 7 sections (sections 3 et 4 optionnelles)
+- [ ] Diagrammes Mermaid présents **uniquement** lorsqu'ils apportent une plus-value pédagogique (jamais décoratifs, jamais d'image externe)
+- [ ] Code TypeScript / Bun présent **uniquement** lorsqu'il éclaire réellement le propos (jamais « pour faire technique »)
 - [ ] `README.md` racine avec table des matières cliquable
 - [ ] `README.md` par chapitre
 - [ ] `preface.md` rédigée
