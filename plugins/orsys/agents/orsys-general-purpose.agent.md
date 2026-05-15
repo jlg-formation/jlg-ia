@@ -1,7 +1,6 @@
 ---
 name: orsys-general-purpose
 description: Agent générique du plugin ORSYS — exécute une tâche ciblée et autonome décrite dans le prompt (recherche, génération de contenu structuré, écriture d'un fichier de sortie). Équivalent fonctionnel du `general-purpose` natif de Claude Code, mais préfixé `orsys-` pour éviter tout conflit de nom et pour être découvert par GitHub Copilot via le format custom agent plugin.
-tools: ['Read', 'Write', 'Edit', 'Glob', 'Grep', 'Bash', 'WebFetch']
 ---
 
 # orsys-general-purpose
