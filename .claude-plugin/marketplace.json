@@ -16,6 +16,16 @@
         "name": "Jean-Louis GUENEGO"
       },
       "license": "MIT"
+    },
+    {
+      "name": "jlg-tools",
+      "source": "./plugins/jlg-tools",
+      "description": "Outils généraux JLG",
+      "version": "1.0.0",
+      "author": {
+        "name": "Jean-Louis GUENEGO"
+      },
+      "license": "MIT"
     }
   ]
 }

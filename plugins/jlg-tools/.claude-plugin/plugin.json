@@ -1,0 +1,12 @@
+{
+  "name": "jlg-tools",
+  "description": "Outils généraux JLG — skills personnels de Jean-Louis GUENEGO.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Jean-Louis GUENEGO",
+    "email": "jlguenego@gmail.com"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/jlguenego/jlg-ia",
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json"
+}
