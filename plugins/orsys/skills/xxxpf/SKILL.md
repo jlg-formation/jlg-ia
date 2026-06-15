@@ -1,6 +1,6 @@
 ---
-name: orsys-formation-plan
-description: Génère un plan de formation professionnelle au format ORSYS à partir d'un sujet et d'une durée. À utiliser lorsque l'utilisateur demande un plan de cours, un programme de formation, un plan pédagogique ORSYS, ou la création d'un fichier `input/plan-<slug>.md`. Produit une structure markdown complète (titre, intro, objectifs, public, prérequis, méthodes, évaluation, programme par chapitres avec TP).
+name: xxxpf
+description: Skill à déclenchement manuel uniquement — ne s'active QUE sur appel explicite /xxxPF. Ne pas invoquer automatiquement, quelle que soit la demande de l'utilisateur.
 disable-model-invocation: true
 ---
 

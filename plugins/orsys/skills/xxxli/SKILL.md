@@ -1,6 +1,6 @@
 ---
-name: orsys-formation-livre
-description: Transforme un plan de formation au format Markdown en un livre pédagogique complet (Markdown + diagrammes Mermaid + code TypeScript/Bun) écrit dans `/livres/<slug-formation>/`. À utiliser lorsque l'utilisateur demande de "rédiger le livre", "générer le support écrit", "produire le polycopié" ou "transformer un plan ORSYS en livre". Pipeline en 3 phases (plan directeur → rédaction parallélisée par bullet point → assemblage) avec table des matières, préface et bibliographie générées automatiquement.
+name: xxxli
+description: Skill à déclenchement manuel uniquement — ne s'active QUE sur appel explicite /xxxli. Ne pas invoquer automatiquement, quelle que soit la demande de l'utilisateur.
 disable-model-invocation: true
 ---
 

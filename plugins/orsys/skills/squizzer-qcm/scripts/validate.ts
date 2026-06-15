@@ -31,8 +31,15 @@ if (!validate(data)) {
   process.exit(1);
 }
 
-const doc = data as { chapters: { id: string; questions: { id: string; correct: number; answers: unknown[] }[] }[] };
+const doc = data as { chapters: { id: string; questions: { id: string; correct: number; answers: string[] }[] }[] };
 const errors: string[] = [];
+
+// Ratio maximal autorisé entre la réponse la plus longue et la plus courte (en nombre de mots).
+// Au-delà, la réponse correcte risque d'être identifiable par sa taille.
+const MAX_LENGTH_RATIO = 2.0;
+
+const wordCount = (s: string) => s.trim().split(/\s+/).length;
+
 const seenChapIds = new Set<string>();
 for (const chap of doc.chapters) {
   if (seenChapIds.has(chap.id)) errors.push(`duplicate chapter id: ${chap.id}`);
@@ -43,6 +50,14 @@ for (const chap of doc.chapters) {
     seenQ.add(q.id);
     if (q.correct < 0 || q.correct >= q.answers.length) {
       errors.push(`${chap.id}/${q.id}: correct index out of range`);
+    }
+    // Vérification des longueurs de réponses
+    const lengths = q.answers.map(wordCount);
+    const minLen = Math.min(...lengths);
+    const maxLen = Math.max(...lengths);
+    if (minLen > 0 && maxLen / minLen > MAX_LENGTH_RATIO) {
+      const detail = q.answers.map((a, i) => `[${i}] ${wordCount(a)}w`).join(", ");
+      errors.push(`${chap.id}/${q.id}: écart de longueur trop grand entre les réponses (ratio ${(maxLen / minLen).toFixed(1)} > ${MAX_LENGTH_RATIO}) — ${detail}`);
     }
   }
 }
