@@ -52,7 +52,16 @@ Poser chaque question l'une après l'autre (un appel `AskUserQuestion` par quest
 
 ### 4. Écrire le fichier de sortie
 
-Une fois toutes les réponses collectées, écrire le bilan dans `<slug>-clarified.md` (même répertoire que le fichier source, calculé à l'étape 1).
+Une fois toutes les réponses collectées, rédiger et écrire `<slug>-clarified.md` (même répertoire que le fichier source).
+
+Ce fichier n'est **pas** un compte-rendu de questions/réponses. C'est une **reformulation complète et claire du besoin**, rédigée comme un document de référence prêt à être transmis à un développeur ou un assistant IA. Elle intègre le contenu du fichier source enrichi par toutes les réponses obtenues à l'étape 3.
+
+Le document doit être :
+- **Plus clair** que la source : ambiguïtés levées, termes définis, structure logique
+- **Plus complet** : les points implicites rendus explicites grâce aux réponses
+- **Directement exploitable** : un développeur ou un assistant IA peut s'en servir sans relire la source
+
+Le format est libre — adapté à la nature du projet — mais doit couvrir au minimum : contexte, objectif, périmètre fonctionnel, contraintes techniques, critères de succès.
 
 ## Processus d'analyse
 
@@ -69,52 +78,42 @@ Examiner la source sous chacun des angles suivants et repérer ce qui est flou, 
 
 ## Format du fichier de sortie
 
+Le format est adapté à la nature du projet. Exemple de structure type :
+
 ```markdown
-# Clarification — <titre court du projet>
+# <Titre clair du projet>
 
-## Contexte résumé
+## Contexte
 
-<3-5 phrases : objet du projet, stade actuel, périmètre pressenti, points déjà clairs>
+<Pourquoi ce projet existe, quel problème il résout, qui en est à l'origine>
 
-## Questions de clarification
+## Objectif
 
-### Besoin & périmètre
-1. <question> *(justification : « <extrait textuel> »)* → **<réponse utilisateur>**
-...
+<Ce que le système doit accomplir, exprimé de façon précise et mesurable>
 
-### Spécification fonctionnelle
-...
+## Périmètre fonctionnel
 
-### Architecture technique
-...
+<Liste des fonctionnalités incluses, avec suffisamment de détail pour être implémentées>
 
-### UX/UI
-...
+## Hors périmètre
 
-### Développement
-...
+<Ce qui est explicitement exclu, pour éviter le scope creep>
 
-### Test
-...
+## Utilisateurs cibles
 
-### Déploiement
-...
+<Qui utilise le système, leurs profils, leurs besoins spécifiques>
 
-### Exploitation
-...
+## Contraintes techniques
 
-## Points bloquants
+<Stack, infrastructure, performance, sécurité, interopérabilité>
 
-<liste des questions ayant reçu la réponse "Point bloquant">
+## Critères de succès
 
-## À clarifier en priorité
+<Comment on sait que le projet est réussi — critères objectifs et vérifiables>
 
-<liste des questions ayant reçu la réponse "À clarifier">
+## Points en suspens
 
-## Prochaines étapes suggérées
-
-- <action concrète 1>
-- <action concrète 2>
+<Ce qui reste à décider ou à préciser — uniquement les points non résolus après clarification>
 ```
 
 ## Règles
