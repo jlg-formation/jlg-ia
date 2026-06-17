@@ -32,13 +32,13 @@ bun plugins/orsys/skills/squizzer-qcm/scripts/check-duplicates.ts <fichier.yaml>
 
 ### Dualité des manifestes
 
-Le plugin `orsys` expose deux manifestes parallèles :
-- `plugins/orsys/plugin.json` — GitHub Copilot (VSCode agent plugins API)
-- `plugins/orsys/.claude-plugin/plugin.json` — Claude Code CLI marketplace
+Chaque plugin expose deux manifestes parallèles :
+- `plugins/<plugin>/plugin.json` — GitHub Copilot (VSCode agent plugins API)
+- `plugins/<plugin>/.claude-plugin/plugin.json` — Claude Code CLI marketplace
 
 ### Structure d'un skill
 
-Chaque skill est un sous-dossier de `plugins/orsys/skills/<name>/` contenant :
+Chaque skill est un sous-dossier de `plugins/<plugin>/skills/<name>/` contenant :
 - **SKILL.md** : frontmatter YAML (`name`, `description`, `disable-model-invocation`) + pipeline complet.
 - **scripts/** : utilitaires Bun/TypeScript (validation, assemblage, déduplication). Chaque script sort avec code 0 (succès), 1 (erreur logique), 2 (mauvais arguments).
 - **assets/** : schémas JSON, exemples de référence, sorties générées.
@@ -64,11 +64,20 @@ Le fichier `.livre-state.json` est la source de vérité : il trace phase, hashe
 
 ## Skills disponibles
 
+### Plugin `orsys`
+
 | Slash command | Skill | Sortie |
 |---|---|---|
 | `/xxxpf` | Plan de formation ORSYS | `input/plan-<slug>.md` |
 | `/xxxli` | Livre pédagogique complet | `/livres/<slug>/` |
 | `/squizzer-qcm` | QCM au format Squizzer YAML | `assets/qcm/qcm-<slug>.yaml` |
+
+### Plugin `jlg-tools`
+
+| Slash command | Skill | Description |
+|---|---|---|
+| `/restructure` | Réécriture de prompt IA | Optimise un fichier prompt en prompt engineering |
+| `/clarify` | Clarification de discussion | Génère des questions de clarification à partir d'une discussion |
 
 ## Tests
 
@@ -85,10 +94,7 @@ Les fixtures se trouvent dans `tests/squizzer-qcm/fixtures/` : `valid/`, `invali
 # Claude Code CLI
 claude plugin marketplace add jlguenego/jlg-ia
 claude plugin install orsys@jlg-ia
-
-# Open Agent Skills CLI
-npx skills add jlguenego/jlg-ia --list
-npx skills add https://github.com/jlguenego/jlg-ia/tree/master/plugins/orsys
+claude plugin install jlg-tools@jlg-ia
 ```
 
 Pour GitHub Copilot : "Chat: Install Plugin From Source" dans la palette VSCode. Les subagents y sont séquentiels (pas parallèles).
