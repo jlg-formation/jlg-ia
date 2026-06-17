@@ -48,11 +48,13 @@ Avant de générer les questions, afficher dans le chat un court résumé (3-5 p
 Pour chaque question, l'appel à `AskUserQuestion` doit avoir :
 - `question` : le texte de la question de clarification (avec sa discipline entre crochets, ex. `[Besoin] Qui sont les utilisateurs finaux ?`)
 - `header` : la discipline concernée (ex. `Besoin`, `Archi`, `UX/UI`…)
-- `options` : exactement ces 4 choix —
-  - **Déjà clair** — la réponse est connue, pas besoin de creuser
-  - **À clarifier** — point à approfondir avant de coder
-  - **Non applicable** — hors périmètre pour ce projet
-  - **Point bloquant** — bloque la suite, doit être résolu en priorité
+- `options` : 2 à 4 réponses **spécifiques au contenu de la question**, plausibles dans le contexte du projet. L'outil ajoute automatiquement une option "Other" pour la saisie libre — ne pas l'ajouter manuellement.
+
+Exemple pour `[Besoin] Qui sont les utilisateurs finaux ?` :
+- Des développeurs internes
+- Des clients externes (grand public)
+- Des administrateurs métier
+- Les trois à la fois
 
 Poser chaque question l'une après l'autre (un appel `AskUserQuestion` par question), en attendant la réponse avant de passer à la suivante.
 
