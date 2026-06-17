@@ -41,13 +41,24 @@ Résoudre la source selon les règles ci-dessus.
 
 Avant de générer les questions, afficher dans le chat un court résumé (3-5 phrases) de ce qui a été compris : objet du projet, stade actuel, périmètre pressenti, points déjà clairs. Utiliser `AskUserQuestion` (ou équivalent) pour demander confirmation que la compréhension est correcte avant de continuer.
 
-### 3. Afficher les questions dans le chat
+### 3. Poser les questions une par une
 
-**Action principale.** Afficher le document de clarification complet directement dans le chat, en Markdown, selon le format défini ci-dessous. L'utilisateur doit voir et lire les questions dans la console.
+**Action principale.** Générer en interne la liste complète des N questions, puis les poser **une par une** dans le chat via `AskUserQuestion` (ou équivalent).
+
+Pour chaque question, l'appel à `AskUserQuestion` doit avoir :
+- `question` : le texte de la question de clarification (avec sa discipline entre crochets, ex. `[Besoin] Qui sont les utilisateurs finaux ?`)
+- `header` : la discipline concernée (ex. `Besoin`, `Archi`, `UX/UI`…)
+- `options` : exactement ces 4 choix —
+  - **Déjà clair** — la réponse est connue, pas besoin de creuser
+  - **À clarifier** — point à approfondir avant de coder
+  - **Non applicable** — hors périmètre pour ce projet
+  - **Point bloquant** — bloque la suite, doit être résolu en priorité
+
+Poser chaque question l'une après l'autre (un appel `AskUserQuestion` par question), en attendant la réponse avant de passer à la suivante.
 
 ### 4. Écrire le fichier
 
-Après l'affichage, écrire le même contenu dans :
+Une fois toutes les réponses collectées, écrire le bilan dans :
 
 ```
 clarifications/clarif-<slug>.md
@@ -82,7 +93,7 @@ Examiner la source sous chacun des angles suivants et repérer ce qui est flou, 
 ## Questions de clarification
 
 ### Besoin & périmètre
-1. <question> *(justification : « <extrait textuel> »)*
+1. <question> *(justification : « <extrait textuel> »)* → **<réponse utilisateur>**
 ...
 
 ### Spécification fonctionnelle
@@ -106,10 +117,13 @@ Examiner la source sous chacun des angles suivants et repérer ce qui est flou, 
 ### Exploitation
 ...
 
-## Risques identifiés
+## Points bloquants
 
-- <risque 1 — discipline concernée>
-- <risque 2 — discipline concernée>
+<liste des questions ayant reçu la réponse "Point bloquant">
+
+## À clarifier en priorité
+
+<liste des questions ayant reçu la réponse "À clarifier">
 
 ## Prochaines étapes suggérées
 
