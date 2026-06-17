@@ -39,11 +39,15 @@ Résoudre la source selon les règles ci-dessus.
 
 ### 2. Afficher le résumé de compréhension
 
-Avant de générer les questions, afficher dans le chat un court résumé (3-5 phrases) de ce qui a été compris : objet du projet, stade actuel, périmètre pressenti, points déjà clairs. Cela permet à l'utilisateur de corriger une incompréhension avant que les questions soient générées.
+Avant de générer les questions, afficher dans le chat un court résumé (3-5 phrases) de ce qui a été compris : objet du projet, stade actuel, périmètre pressenti, points déjà clairs. Utiliser `AskUserQuestion` (ou équivalent) pour demander confirmation que la compréhension est correcte avant de continuer.
 
-### 3. Générer les questions et écrire le fichier
+### 3. Afficher les questions dans le chat
 
-Analyser la source, générer exactement N questions, puis écrire le résultat dans :
+**Action principale.** Afficher le document de clarification complet directement dans le chat, en Markdown, selon le format défini ci-dessous. L'utilisateur doit voir et lire les questions dans la console.
+
+### 4. Écrire le fichier
+
+Après l'affichage, écrire le même contenu dans :
 
 ```
 clarifications/clarif-<slug>.md
