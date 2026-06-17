@@ -13,29 +13,21 @@ Ce skill est un outil de **clarification interne** : il aide l'utilisateur à pr
 ## Invocation
 
 ```
-/clarify [N]
+/clarify <fichier> [N]
 ```
 
+- `<fichier>` : chemin du fichier source à clarifier. **Obligatoire.** Si absent, utiliser `AskUserQuestion` (ou équivalent) pour le demander avant de continuer.
 - `N` : nombre total de questions à générer (entier ≥ 1). **Par défaut : 10.**
 
-### Résolution de la source
-
-La source à clarifier est identifiée dans le message qui suit la commande selon cet ordre de priorité :
-
-1. **Chemin de fichier** (ex. `clarify me brief.md`, `clarifie le fichier specs/v2.md`) → lire le fichier avec `Read` et utiliser son contenu comme source.
-2. **Texte collé directement** → utiliser ce texte comme source.
-3. **Aucune source fournie** → utiliser `AskUserQuestion` (ou équivalent) pour demander la source avant de continuer.
-
 Exemples :
-- `/clarify brief.md` → lire `brief.md`, 10 questions
-- `/clarify 20 specs/v2.md` → lire `specs/v2.md`, 20 questions
-- `/clarify 5` suivi d'un texte collé → 5 questions sur le texte
+- `/clarify brief.md` → lire `brief.md`, 10 questions, écrire `brief-clarified.md`
+- `/clarify specs/v2.md 20` → lire `specs/v2.md`, 20 questions, écrire `specs/v2-clarified.md`
 
 ## Pipeline
 
-### 1. Lire la source
+### 1. Lire le fichier source
 
-Résoudre la source selon les règles ci-dessus.
+Lire le fichier fourni avec `Read`. Dériver le `<slug>` du nom de fichier sans extension (ex. `brief.md` → `brief`, `specs/v2.md` → `specs/v2`). Le fichier de sortie sera `<slug>-clarified.md` dans le même répertoire que le fichier source (ex. `brief-clarified.md`, `specs/v2-clarified.md`).
 
 ### 2. Afficher le résumé de compréhension
 
@@ -58,17 +50,9 @@ Exemple pour `[Besoin] Qui sont les utilisateurs finaux ?` :
 
 Poser chaque question l'une après l'autre (un appel `AskUserQuestion` par question), en attendant la réponse avant de passer à la suivante.
 
-### 4. Écrire le fichier
+### 4. Écrire le fichier de sortie
 
-Une fois toutes les réponses collectées, écrire le bilan dans :
-
-```
-clarifications/clarif-<slug>.md
-```
-
-Où `<slug>` est dérivé du nom du fichier source (sans extension) ou, si la source est du texte collé, d'un titre court en kebab-case inféré du contenu (ex. `api-paiement`, `refonte-auth`).
-
-Créer le dossier `clarifications/` s'il n'existe pas.
+Une fois toutes les réponses collectées, écrire le bilan dans `<slug>-clarified.md` (même répertoire que le fichier source, calculé à l'étape 1).
 
 ## Processus d'analyse
 
