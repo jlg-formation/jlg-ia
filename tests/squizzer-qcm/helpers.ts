@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, copyFileSync, readdirSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { resolve, join, dirname } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -11,22 +11,18 @@ export const SCHEMA_PATH = join(SKILL_DIR, "assets", "schema.json");
 export const SECURITE_YAML = join(SKILL_DIR, "assets", "securite.yaml");
 export const FIXTURES = join(here, "fixtures");
 
-const TMP_DIR = join(REPO_ROOT, "tests", ".tmp");
-const TMP_SCRIPTS = join(TMP_DIR, "scripts");
-
 export function ensureScriptsReady(): string {
-  if (existsSync(join(TMP_SCRIPTS, "node_modules"))) return TMP_SCRIPTS;
-  mkdirSync(TMP_SCRIPTS, { recursive: true });
-  for (const f of readdirSync(SKILL_SCRIPTS_SRC)) {
-    if (f.endsWith(".ts") || f === "package.json") {
-      copyFileSync(join(SKILL_SCRIPTS_SRC, f), join(TMP_SCRIPTS, f));
-    }
-  }
-  const r = spawnSync("bun", ["install"], { cwd: TMP_SCRIPTS, stdio: "pipe", shell: true });
+  // Les scripts s'exécutent sur place, sans être recopiés ailleurs.
+  if (existsSync(join(SKILL_SCRIPTS_SRC, "node_modules"))) return SKILL_SCRIPTS_SRC;
+  const r = spawnSync("bun", ["install", "--frozen-lockfile"], {
+    cwd: SKILL_SCRIPTS_SRC,
+    stdio: "pipe",
+    shell: true,
+  });
   if (r.status !== 0) {
     throw new Error(`bun install failed: ${r.stderr?.toString()}`);
   }
-  return TMP_SCRIPTS;
+  return SKILL_SCRIPTS_SRC;
 }
 
 export type RunResult = { code: number; stdout: string; stderr: string };

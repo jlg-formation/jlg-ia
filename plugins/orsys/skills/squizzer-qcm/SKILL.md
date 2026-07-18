@@ -25,17 +25,19 @@ Produire un fichier `qcm-<slug>.yaml` conforme au format Squizzer (voir `assets/
 
 ## Pipeline (à exécuter dans l'ordre)
 
-### 1. Préparer les scripts (une fois par projet)
+### 1. Préparer les dépendances des scripts (une fois par machine)
 
-Les scripts canoniques vivent dans `${SKILL_DIR}/scripts/`. Au premier usage dans un workspace :
+Les scripts canoniques vivent dans `${SKILL_DIR}/scripts/` et **s'exécutent sur place** : ne jamais les recopier ailleurs. Ils ne dépendent que de `${SKILL_DIR}/scripts/package.json` + `bun.lock` (versionné) et d'un `bunfig.toml` qui **désactive l'auto-install** de Bun.
+
+Au premier usage sur une machine, installer les dépendances **dans le dossier des scripts** :
 
 ```bash
-mkdir -p .skills-tmp-scripts
-cp ${SKILL_DIR}/scripts/*.ts ${SKILL_DIR}/scripts/package.json .skills-tmp-scripts/
-cd .skills-tmp-scripts && bun install
+cd ${SKILL_DIR}/scripts && bun install --frozen-lockfile
 ```
 
-Si `.skills-tmp-scripts/node_modules` existe déjà, sauter cette étape.
+**Vérification obligatoire avant toute exécution de script** : s'assurer que `bun install --frozen-lockfile` a bien été joué au moins une fois, c'est-à-dire que `${SKILL_DIR}/scripts/node_modules` existe. Si ce dossier est absent, lancer la commande ci-dessus **avant** de continuer ; ne jamais exécuter un script tant que cette vérification n'est pas passée.
+
+Si `${SKILL_DIR}/scripts/node_modules` existe déjà, sauter cette étape. L'auto-install de Bun étant désactivé (`bunfig.toml`), un lancement de script sans `node_modules` échouera explicitement au lieu d'installer silencieusement au mauvais endroit — dans ce cas, relancer `bun install --frozen-lockfile` ci-dessus.
 
 ### 2. Résoudre l'entrée et construire le plan
 
@@ -112,14 +114,14 @@ questions:
 ### 5. Assembler
 
 ```bash
-bun .skills-tmp-scripts/assemble.ts .tmp/<slug>/ ./squizzer-qcm/qcm-<slug>.yaml "<titre du QCM>"
+bun ${SKILL_DIR}/scripts/assemble.ts .tmp/<slug>/ ./squizzer-qcm/qcm-<slug>.yaml "<titre du QCM>"
 ```
 
 ### 6. Valider
 
 ```bash
-bun .skills-tmp-scripts/validate.ts ./squizzer-qcm/qcm-<slug>.yaml ${SKILL_DIR}/assets/schema.json
-bun .skills-tmp-scripts/check-duplicates.ts ./squizzer-qcm/qcm-<slug>.yaml 0.8
+bun ${SKILL_DIR}/scripts/validate.ts ./squizzer-qcm/qcm-<slug>.yaml ${SKILL_DIR}/assets/schema.json
+bun ${SKILL_DIR}/scripts/check-duplicates.ts ./squizzer-qcm/qcm-<slug>.yaml 0.8
 ```
 
 - `validate.ts` → schéma JSON Schema + cohérence (ids uniques, index `correct` valide, 4 réponses)

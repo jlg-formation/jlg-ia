@@ -29,6 +29,8 @@ describe("structure du skill squizzer-qcm", () => {
     ["scripts/assemble.ts"],
     ["scripts/check-duplicates.ts"],
     ["scripts/package.json"],
+    ["scripts/bun.lock"],
+    ["scripts/bunfig.toml"],
   ])("le fichier référencé %s existe", (rel) => {
     expect(existsSync(join(SKILL_DIR, rel))).toBe(true);
   });

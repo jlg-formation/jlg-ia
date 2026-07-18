@@ -1,6 +1,8 @@
 # Dependencies
 node_modules/
 bun.lock
+# ...mais on versionne le lockfile des scripts du skill pour une install déterministe
+!plugins/orsys/skills/squizzer-qcm/scripts/bun.lock
 
 # Build outputs
 dist/

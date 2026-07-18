@@ -31,14 +31,14 @@ if (!validate(data)) {
   process.exit(1);
 }
 
-const doc = data as { chapters: { id: string; questions: { id: string; correct: number; answers: string[] }[] }[] };
+const doc = data as { chapters: { id: string; questions: { id: string; correct: number; answers: (string | number)[] }[] }[] };
 const errors: string[] = [];
 
 // Ratio maximal autorisé entre la réponse la plus longue et la plus courte (en nombre de mots).
 // Au-delà, la réponse correcte risque d'être identifiable par sa taille.
 const MAX_LENGTH_RATIO = 2.0;
 
-const wordCount = (s: string) => s.trim().split(/\s+/).length;
+const wordCount = (s: string | number) => String(s).trim().split(/\s+/).length;
 
 const seenChapIds = new Set<string>();
 for (const chap of doc.chapters) {

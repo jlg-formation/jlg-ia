@@ -1,0 +1,5 @@
+# Empêche Bun d'auto-installer les dépendances manquantes au runtime.
+# Les dépendances doivent être installées explicitement via `bun install`
+# (le lockfile bun.lock et node_modules sont résolus depuis ce dossier).
+[install]
+auto = "disable"

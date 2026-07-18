@@ -2,6 +2,11 @@
   "name": "squizzer-qcm-scripts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "assemble": "bun assemble.ts",
+    "validate": "bun validate.ts",
+    "check-duplicates": "bun check-duplicates.ts"
+  },
   "dependencies": {
     "yaml": "^2.6.0",
     "ajv": "^8.17.1"

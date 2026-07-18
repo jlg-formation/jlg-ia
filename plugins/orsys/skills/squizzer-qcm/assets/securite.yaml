@@ -44,7 +44,13 @@ chapters:
         explanation: "FTP est destiné au transfert de fichiers."
       - id: q7
         question: "Quelle couche du modèle OSI correspond aux adresses MAC ?"
-        answers: [Réseau, Liaison de données, Application, Transport]
+        answers:
+          [
+            Couche Réseau,
+            Couche Liaison de données,
+            Couche Application,
+            Couche Transport,
+          ]
         correct: 1
         explanation:
           "Les adresses MAC se situent à la couche 2 : Liaison de données."
