@@ -58,10 +58,6 @@ Les skills lourds (`squizzer-qcm`, `xxxli`) suivent trois phases :
 
 Le fichier `.livre-state.json` est la source de vérité : il trace phase, hashes SHA256 des fiches sources et des fichiers générés, et statut de chaque bullet (`a_faire` / `en_cours` / `fait`). Les écritures sont atomiques (fichier temp → rename). Relancer le skill reprend exactement là où il s'était arrêté ; si une fiche change, seuls les bullets affectés sont re-générés.
 
-### Subagent générique
-
-`plugins/orsys/agents/orsys-general-purpose.agent.md` est l'agent worker invoqué par les skills orchestrateurs. Il reçoit un prompt auto-suffisant, n'interroge pas l'utilisateur, ne spawn pas d'autres subagents, et écrit ses fichiers aux chemins exacts fournis.
-
 ## Skills disponibles
 
 ### Plugin `orsys`

@@ -84,7 +84,7 @@ chapters:
 Pour chaque chapitre, **découper les 20 sujets en 4 lots de 5** (`q1-q5`, `q6-q10`, `q11-q15`, `q16-q20`).
 Cela donne, pour 6 chapitres, **24 lots** → exécuter en **vagues de 4 subagents max en parallèle** (6 vagues de 4).
 
-Pour chaque lot, lancer un subagent `orsys-general-purpose` (déclaré dans `plugins/orsys/agents/orsys-general-purpose.agent.md`) avec un prompt **autonome** qui :
+Pour chaque lot, lancer un subagent avec un prompt **autonome** qui :
 
 - précise le titre du QCM, le titre + id du chapitre, la plage de questions (ex. q11–q20)
 - impose le format YAML de sortie ci-dessous
