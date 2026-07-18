@@ -1,6 +1,6 @@
 ---
-name: xxxli
-description: Skill à déclenchement manuel uniquement — ne s'active QUE sur appel explicite /xxxli. Ne pas invoquer automatiquement, quelle que soit la demande de l'utilisateur.
+name: livre-formation-generator
+description: Skill à déclenchement manuel uniquement — ne s'active QUE si l'utilisateur écrit dans le prompt "xxxLI <plan>", où <plan> est le chemin vers le plan de formation. Ne pas invoquer automatiquement dans tout autre cas, quelle que soit la demande de l'utilisateur.
 disable-model-invocation: true
 ---
 
@@ -22,7 +22,7 @@ Tu es un **rédacteur pédagogique senior** et **directeur d'ouvrage**. Tu trans
 | --------------- | ----------------------------------------- | --------------- |
 | `plan`          | chemin vers le fichier Markdown du plan   | (obligatoire)   |
 | `niveau`        | `debutant` \| `intermediaire` \| `expert` | `intermediaire` |
-| `langue`        | `fr`                                      | `fr`            |
+| `langue`        | `fr` \| `en` \| `de` \| …                  | `fr`            |
 | `racine_sortie` | chemin                                    | `/livres/`      |
 
 Si `plan` n'est pas fourni, demander le chemin avant de démarrer.
@@ -73,17 +73,17 @@ La génération d'un livre est longue et peut être interrompue (timeout, perte 
     {
       "id": "01-chapitre-slug/02-bullet-slug",
       "chemin": "01-chapitre-slug/02-bullet-slug.md",
-      "statut": "a_faire" | "en_cours" | "fait",
+      "statut": "todo" | "in_progress" | "done",
       "contenu_hash": "sha256-du-fichier-produit-ou-null",
       "fiche_hash": "sha256-de-la-fiche-du-plan-directeur"
     }
   ],
   "assemblage": {
-    "readme_racine": "a_faire" | "fait",
-    "readmes_chapitres": "a_faire" | "fait",
-    "preface": "a_faire" | "fait",
-    "bibliographie": "a_faire" | "fait",
-    "verification_liens": "a_faire" | "fait"
+    "readme_racine": "todo" | "done",
+    "readmes_chapitres": "todo" | "done",
+    "preface": "todo" | "done",
+    "bibliographie": "todo" | "done",
+    "verification_liens": "todo" | "done"
   }
 }
 ```
@@ -95,23 +95,23 @@ La génération d'un livre est longue et peut être interrompue (timeout, perte 
 3. **Si `.livre-state.json` existe** :
    - Recalculer `plan_hash` du fichier d'entrée. S'il diffère de celui stocké → **demander à l'utilisateur** s'il souhaite (a) reprendre malgré le changement de plan, (b) repartir de zéro (suppression explicite confirmée), (c) annuler.
    - Si `phase == "termine"` → informer l'utilisateur, ne rien faire sauf si `--force` explicite.
-   - Sinon → **reprendre à la phase indiquée**, en sautant tout ce qui est déjà `fait`.
+   - Sinon → **reprendre à la phase indiquée**, en sautant tout ce qui est déjà `done`.
 
 ### Règles de reprise par phase
 
 - **Phase 1 (plan directeur)** : si `plan_directeur` est présent dans l'état, le réutiliser tel quel. Sinon, le générer et le persister immédiatement avant de passer à la phase 2.
-- **Phase 2 (rédaction)** : ne lancer de sous-agent **que** pour les bullets dont `statut != "fait"`. Avant chaque lot, recharger l'état depuis le disque (un autre run a pu progresser). Après chaque sous-agent terminé :
+- **Phase 2 (rédaction)** : ne lancer de sous-agent **que** pour les bullets dont `statut != "done"`. Avant chaque lot, recharger l'état depuis le disque (un autre run a pu progresser). Après chaque sous-agent terminé :
   1. vérifier que le fichier produit existe et n'est pas vide ;
   2. calculer son hash ;
-  3. mettre à jour l'entrée correspondante (`statut: "fait"`, `contenu_hash`, `mis_a_jour_le`) ;
+  3. mettre à jour l'entrée correspondante (`statut: "done"`, `contenu_hash`, `mis_a_jour_le`) ;
   4. **réécrire `.livre-state.json` de manière atomique** (écriture dans `.livre-state.json.tmp` puis rename).
-- **Phase 3 (assemblage)** : chaque sous-étape (`readme_racine`, `readmes_chapitres`, `preface`, `bibliographie`, `verification_liens`) est tracée individuellement et passée à `fait` après écriture + flush de l'état.
+- **Phase 3 (assemblage)** : chaque sous-étape (`readme_racine`, `readmes_chapitres`, `preface`, `bibliographie`, `verification_liens`) est tracée individuellement et passée à `done` après écriture + flush de l'état.
 
 ### Garanties
 
 - **Aucune perte de travail** : un bullet rédigé reste sur le disque même si l'orchestrateur est tué.
-- **Pas de double rédaction** : un bullet `fait` n'est jamais relancé tant que sa `fiche_hash` n'a pas changé.
-- **Détection de dérive** : si la fiche d'un bullet déjà `fait` change (parce que le plan directeur a été régénéré), repasser ce bullet à `a_faire` et le ré-rédiger.
+- **Pas de double rédaction** : un bullet `done` n'est jamais relancé tant que sa `fiche_hash` n'a pas changé.
+- **Détection de dérive** : si la fiche d'un bullet déjà `done` change (parce que le plan directeur a été régénéré), repasser ce bullet à `todo` et le ré-rédiger.
 - **Écriture atomique** : tout `.livre-state.json` est écrit via fichier temporaire + rename pour éviter un état corrompu en cas d'interruption pendant l'écriture.
 - **Pas d'écrasement implicite** : seule une reprise propre ou une demande explicite de l'utilisateur peut détruire un livre existant. Aucune suppression silencieuse, aucun suffixe `-v2`.
 
@@ -128,15 +128,15 @@ Pour **chaque bullet point** du plan d'entrée, établir une fiche contenant :
 - **Notions abordées** : liste courte des concepts clés.
 - **Pré-requis** : notions déjà vues, à référencer en arrière (liens Markdown relatifs).
 - **Annonces** : notions à venir, à référencer en avant.
-- **Code prévu** _(optionnel)_ : sujet de l'exemple TypeScript/Bun **uniquement si** un extrait de code apporte une réelle valeur pédagogique. Laisser vide sinon — ne jamais ajouter de code « pour faire joli ».
-- **Diagrammes envisagés** _(optionnel)_ : type Mermaid (flux, séquence, classe, état, ER, gantt…) **uniquement si** un schéma clarifie réellement le propos. Laisser vide sinon — ne jamais ajouter de diagramme décoratif.
+- **Code prévu** _(optionnel)_ : sujet de l'exemple TypeScript/Bun **uniquement si** le code a un réel intérêt pédagogique **et** que le lecteur de l'ouvrage s'attend à lire du code sur ce sujet. Sinon, laisser vide — pas de code.
+- **Diagrammes envisagés** : type Mermaid (flux, séquence, classe, état, ER, gantt…). **Privilégier systématiquement un schéma Mermaid** dès qu'il aide à visualiser le propos ; prévoir un diagramme pour la plupart des bullets afin de rythmer l'ouvrage.
 - **Glossaire local** : 2 à 5 termes nouveaux introduits.
 
 Constituer aussi un **glossaire global** unique (nom canonique de chaque concept) pour éviter divergences terminologiques entre sous-agents.
 
 ### Phase 2 — Rédaction parallélisée
 
-**Lancer un sous-agent par bullet point en parallèle** via l'agent `orsys-general-purpose` (ou équivalent), en envoyant **plusieurs invocations Task dans un même message** pour exécution concurrente.
+**Lancer un sous-agent par bullet point en parallèle**, en envoyant **plusieurs invocations Task dans un même message** pour exécution concurrente.
 
 Chaque sous-agent reçoit :
 
@@ -150,18 +150,41 @@ Chaque sous-agent **écrit directement** son fichier `<racine_sortie>/<slug-form
 #### Contrat de contenu d'un fichier bullet point
 
 - **Volume** : 800 à 1200 mots (cible ~1000).
-- **Langue** : français exclusivement.
+- **Langue** : celle du paramètre `langue` (`fr`, `en`, `de`, etc.), exclusivement.
 - **Ton** : pédagogique, vulgarisateur mais rigoureux.
 - **Structure imposée** :
   1. **Problématique** — exposition claire de la question traitée.
   2. **Développement pédagogique** — explication progressive.
-  3. **Illustrations Mermaid** _(optionnel)_ — **uniquement si** un schéma apporte une réelle plus-value pédagogique (clarifier un flux, une architecture, un cycle de vie, une relation…). Si Mermaid est utilisé, c'est exclusivement Mermaid, jamais d'image externe (PNG/SVG/JPG interdits). **Ne jamais ajouter de diagramme décoratif** : un sujet purement conceptuel ou narratif peut très bien se passer de schéma.
-  4. **Code TypeScript / Bun** _(optionnel)_ — extraits commentés **uniquement si** le sujet s'y prête réellement et si le code éclaire un point qui resterait flou sans lui. **Ne jamais ajouter de code « pour faire technique »** : un chapitre conceptuel, méthodologique ou théorique n'a pas besoin d'exemple de code.
+  3. **Illustrations Mermaid** — **à utiliser souvent** pour rythmer la lecture et éviter l'ennui : dès qu'un flux, une architecture, un cycle de vie, une relation ou une comparaison peut se visualiser, en faire un schéma Mermaid. Viser au moins un diagramme par bullet lorsque c'est pertinent. Si un schéma est utilisé, c'est exclusivement Mermaid, jamais d'image externe (PNG/SVG/JPG interdits). Éviter uniquement le diagramme purement décoratif qui n'apporte rien.
+  4. **Code TypeScript / Bun** _(optionnel)_ — extraits commentés **uniquement si** le code a un réel intérêt pédagogique **et** que le lecteur s'attend à lire du code sur ce sujet. Sinon, **pas de code** : un chapitre conceptuel, méthodologique ou théorique n'a pas besoin d'exemple de code, et on n'ajoute jamais de code « pour faire technique ».
   5. **Exemples concrets** — cas d'usage, analogies, mises en situation.
   6. **Réponse à la problématique** — synthèse explicite qui boucle sur l'introduction.
   7. **Renvois** — liens Markdown relatifs vers les autres bullet points / chapitres concernés.
 
-> **Règle d'or sur les diagrammes et le code** : ils sont **strictement optionnels**. Le critère unique est l'**intérêt pédagogique**. Mieux vaut un chapitre sans aucun diagramme ni code qu'un chapitre alourdi par des illustrations gratuites. Un sous-agent qui ajoute systématiquement un Mermaid ou un bloc TypeScript à chaque fichier viole le contrat.
+> **Règle d'or sur les diagrammes et le code** : le **Mermaid est fortement encouragé** — l'utiliser souvent pour donner du rythme et soutenir l'attention du lecteur, sans tomber dans le schéma purement décoratif. Le **code, lui, reste l'exception** : il n'apparaît que si le sujet a un réel intérêt de code **et** que le lecteur s'attend à en lire. Mieux vaut un chapitre sans code qu'un chapitre alourdi par un bloc TypeScript gratuit.
+
+#### Types de diagrammes Mermaid disponibles
+
+Choisir le type le plus adapté au propos parmi ceux que Mermaid sait rendre :
+
+- **Flowchart** (`flowchart` / `graph`) — flux, algorithmes, arbres de décision, processus.
+- **Sequence diagram** (`sequenceDiagram`) — échanges dans le temps entre acteurs/systèmes (requêtes/réponses, protocoles).
+- **Class diagram** (`classDiagram`) — classes, attributs, méthodes, héritage, associations.
+- **State diagram** (`stateDiagram-v2`) — machines à états, cycles de vie, transitions.
+- **Entity Relationship diagram** (`erDiagram`) — modèles de données, tables et relations.
+- **User journey** (`journey`) — parcours utilisateur et ressenti par étape.
+- **Gantt** (`gantt`) — planning, phases, jalons, dépendances temporelles.
+- **Pie chart** (`pie`) — répartitions et proportions.
+- **Quadrant chart** (`quadrantChart`) — positionnement sur deux axes (priorisation, matrices).
+- **Requirement diagram** (`requirementDiagram`) — exigences et leurs liens de traçabilité.
+- **Git graph** (`gitGraph`) — branches, commits, merges (workflows Git).
+- **Mindmap** (`mindmap`) — cartes mentales, décomposition d'un concept.
+- **Timeline** (`timeline`) — chronologies et historiques.
+- **Sankey** (`sankey-beta`) — flux et volumes entre étapes.
+- **XY chart** (`xychart-beta`) — courbes et histogrammes (évolutions, comparaisons chiffrées).
+- **Block diagram** (`block-beta`) — schémas de blocs et architectures modulaires.
+- **C4 diagram** (`C4Context`, `C4Container`, `C4Component`) — architecture logicielle (modèle C4).
+- **Packet diagram** (`packet-beta`) — structure d'octets d'un paquet/protocole.
 
 ### Phase 3 — Assemblage (séquentiel)
 
@@ -192,13 +215,13 @@ L'orchestrateur **ne rédige pas** lui-même le contenu des bullet points : il p
 
 - [ ] `<slug-formation>` correctement dérivé du titre `#` de niveau 1
 - [ ] `.livre-state.json` créé / chargé au démarrage et flushé atomiquement après chaque étape
-- [ ] Reprise effective : aucun bullet `fait` n'est re-rédigé sauf changement de fiche détecté
+- [ ] Reprise effective : aucun bullet `done` n'est re-rédigé sauf changement de fiche détecté
 - [ ] Aucune suppression de répertoire existant sans confirmation explicite de l'utilisateur
 - [ ] Plan directeur établi puis persisté dans l'état avant la phase 2
 - [ ] 1 fichier Markdown par bullet point du plan d'entrée
-- [ ] Chaque fichier : 800–1200 mots, structure 7 sections (sections 3 et 4 optionnelles)
-- [ ] Diagrammes Mermaid présents **uniquement** lorsqu'ils apportent une plus-value pédagogique (jamais décoratifs, jamais d'image externe)
-- [ ] Code TypeScript / Bun présent **uniquement** lorsqu'il éclaire réellement le propos (jamais « pour faire technique »)
+- [ ] Chaque fichier : 800–1200 mots, structure 7 sections (Mermaid fréquent, code exceptionnel)
+- [ ] Diagrammes Mermaid **fréquents** pour rythmer l'ouvrage (jamais purement décoratifs, jamais d'image externe)
+- [ ] Code TypeScript / Bun présent **uniquement** s'il a un intérêt pédagogique **et** que le lecteur s'attend à lire du code (jamais « pour faire technique »)
 - [ ] `README.md` racine avec table des matières cliquable
 - [ ] `README.md` par chapitre
 - [ ] `preface.md` rédigée

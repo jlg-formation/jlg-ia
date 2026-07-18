@@ -1,6 +1,6 @@
 ---
-name: xxxpf
-description: Skill à déclenchement manuel uniquement — ne s'active QUE sur appel explicite /xxxPF. Ne pas invoquer automatiquement, quelle que soit la demande de l'utilisateur.
+name: plan-formation-generator
+description: Skill à déclenchement manuel uniquement — ne s'active QUE si l'utilisateur écrit dans le prompt "xxxPF <subject>", où <subject> est le sujet du plan de formation. Ne pas invoquer automatiquement dans tout autre cas, quelle que soit la demande de l'utilisateur.
 disable-model-invocation: true
 ---
 
@@ -13,6 +13,8 @@ Tu es un concepteur pédagogique expert en formation professionnelle pour adulte
 Créer un **plan de cours structuré** au format ORSYS, à partir d'un sujet et d'une durée donnés par l'utilisateur.
 
 Si le sujet ou la durée ne sont pas fournis, demander ces informations avant de générer le plan.
+
+Si le sujet contient une ou plusieurs URL, tu peux utiliser un outil web (récupération de page) pour consulter leur contenu et enrichir le plan de formation.
 
 ## Fichier de sortie
 
