@@ -74,6 +74,7 @@ Le fichier `.livre-state.json` est la source de vérité : il trace phase, hashe
 |---|---|---|
 | `/restructure` | Réécriture de prompt IA | Optimise un fichier prompt en prompt engineering |
 | `/clarify` | Clarification de discussion | Génère des questions de clarification à partir d'une discussion |
+| `/ux-audit` | Audit ergonomique | Audite une URL, du code front ou des maquettes selon ux-audit.github.io ; produit `ux-audit/<slug>/rapport.md` + captures annotées |
 
 ## Tests
 

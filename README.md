@@ -221,6 +221,7 @@ npx skills remove --all                # tout retirer
 | Skill                  | Description                                                                                                                                               |
 | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `orsys-formation-plan` | Génère un plan de formation professionnelle au format ORSYS (titre, objectifs, chapitres avec TP, évaluation). Produit un fichier `input/plan-<slug>.md`. |
+| `ux-audit` (jlg-tools) | Audit ergonomique pédagogique selon [ux-audit.github.io](https://ux-audit.github.io/) (critères Bastien & Scapin). Produit `ux-audit/<slug>/rapport.md` avec captures annotées. |
 
 ---
 
