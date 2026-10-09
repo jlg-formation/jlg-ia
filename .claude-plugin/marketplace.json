@@ -11,7 +11,7 @@
       "name": "orsys",
       "source": "./plugins/orsys",
       "description": "ORSYS stuff plugins",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "Jean-Louis GUENEGO"
       },
@@ -21,7 +21,7 @@
       "name": "jlg-tools",
       "source": "./plugins/jlg-tools",
       "description": "Outils généraux JLG",
-      "version": "1.0.0",
+      "version": "1.4.1",
       "author": {
         "name": "Jean-Louis GUENEGO"
       },
