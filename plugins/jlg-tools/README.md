@@ -11,6 +11,7 @@ Ce plugin regroupe des skills d'usage transversal, à déclenchement **manuel un
 | `/clarify <fichier> [N]` | [clarify](skills/clarify/SKILL.md) | Génère `N` questions de clarification (10 par défaut) à partir d'un fichier source, pour préciser un besoin avant de démarrer un développement avec un assistant IA. |
 | `/restructure <fichier>` | [restructure](skills/restructure/SKILL.md) | Réécrit un fichier contenant un prompt destiné à une IA afin d'en maximiser l'efficacité en prompt engineering, en respectant le contexte et le format d'origine. |
 | `/ux-audit <cible> [critères]` | [ux-audit](skills/ux-audit/SKILL.md) | Réalise un audit ergonomique expert (8 critères de Bastien & Scapin, référentiel [ux-audit.github.io](https://ux-audit.github.io/)) sur une URL, du code front-end ou des maquettes. Produit `ux-audit/<slug>/rapport.md` + captures annotées. |
+| `/refactorer <périmètre>` | [refactorer](skills/refactorer/SKILL.md) | Identifie le code mort, les doublons, le formatage, le lint, la taille des fichiers et la documentation, puis produit un rapport. Ne modifie aucun fichier source. |
 
 ## Structure
 
@@ -20,6 +21,7 @@ jlg-tools/
 ├── .claude-plugin/plugin.json  # Manifeste Claude Code CLI
 └── skills/
     ├── clarify/
+    ├── refactorer/
     ├── restructure/
     └── ux-audit/
         ├── assets/criteres/    # Les 8 critères de Bastien & Scapin
