@@ -10,6 +10,19 @@ Analyse un périmètre de code pour repérer le code mort et les doublons, véri
 
 Le skill est indépendant du langage. Ne pas supposer un langage à partir du dépôt : détecter les langages présents via les extensions et les fichiers de configuration (`package.json`, `pyproject.toml`, `composer.json`, `Makefile`, `CMakeLists.txt`, `Makefile.PL`, etc.).
 
+## Règle absolue : lecture seule
+
+Pendant toute l'analyse, ne modifier aucun fichier du dépôt, pas même une ligne. Seul le rapport est écrit. Interdits, même si l'outil les propose par défaut ou si un script du projet les lance :
+
+- **Formatage en écriture** : `prettier --write`, `oxfmt` sans `--check`, `biome format --write`, `biome check --write`, `dprint fmt`, `black` sans `--check`/`--diff`, `ruff format` sans `--check`, `gofmt -w`, `cargo fmt` sans `--check`, `clang-format -i`, `php-cs-fixer fix` sans `--dry-run`, `perltidy -b` ou `-i`.
+- **Correctifs automatiques** : `--fix`, `--write`, `-w`, `--alter`, `cargo clippy --fix`, `knip --fix`, `ruff check --fix`, `eslint --fix`, `oxlint --fix`.
+- **Compilation ou build qui écrit dans le dépôt** : `tsc` sans `--noEmit`, `bun build`, `cargo build`, `npm run build`. Compiler seulement en mode vérification (`tsc --noEmit`, `cargo check`, `go vet`).
+- **Dépendances et historique Git** : `bun install`, `npm install`, `pip install`, `git add`, `git commit`, `git checkout`, `git stash`, `git reset`, `git clean`.
+- **Redirections dans le dépôt** : `> fichier` ou un reporter écrivant dans le projet. Les sorties intermédiaires vont dans un dossier temporaire hors dépôt.
+- **Outil dont le mode est incertain** : consulter d'abord son aide (`--help`) et ne retenir que la forme en lecture seule.
+
+Vérification : relever `git status --short` avant l'analyse et le relancer après. Seul le fichier de rapport doit être nouveau. Si un fichier source a changé, s'arrêter, le signaler dans le chat et proposer la restauration sans l'exécuter.
+
 ## 1. Définir le périmètre
 
 - Si l'utilisateur donne un chemin, un dossier ou un module, l'utiliser. Une inclusion explicite passe outre les exclusions ci-dessous.
@@ -21,20 +34,36 @@ Le skill est indépendant du langage. Ne pas supposer un langage à partir du d�
   - **Code tiers versionné**, identifié comme tel (répertoire `vendor`, `third_party`, `external`, copie de bibliothèque avec sa licence ou son en-tête d'origine). Le signaler dans le rapport sans l'analyser.
 - Pour les fichiers déjà suivis par Git malgré un `.gitignore`, se fier à `git ls-files` : un fichier suivi reste dans le périmètre sauf s'il relève des catégories ci-dessus.
 - Lister les exclusions appliquées dans le rapport, pour que l'utilisateur puisse les contester.
-- Lister les langages détectés et les points d'entrée (scripts, `main`, routes, tests, configuration de build).
+- Lister la stack détectée (voir « Identifier la stack ») et les points d'entrée (scripts, `main`, routes, tests, configuration de build).
+
+### Identifier la stack
+
+Détecter le runtime, le gestionnaire de paquets et les outils réellement utilisés avant toute analyse. Ne jamais déduire la stack des seuls README ou de l'habitude du langage. Ordre de lecture :
+
+1. **`mise.toml`** (ou `.mise.toml`) à la racine, lu en premier : `[tools]` donne les runtimes et versions (`bun = "1.2"`, `node = "22"`, `python = "3.12"`), `[tasks]` donne les commandes du projet. Équivalents : `.tool-versions` (asdf), `.nvmrc`, `.node-version`, `.python-version`, `rust-toolchain.toml`, `.go-version`. Si aucun fichier de versions n'existe, proposer dans les questions la création d'un `mise.toml`, avec `[tools]` déduit du verrou et de `packageManager` et `[tasks]` repris des scripts du projet, sans le créer d'office.
+2. **Fichier de verrou**, qui désigne le gestionnaire de paquets réellement utilisé et prime sur la documentation : `bun.lock` / `bun.lockb` (Bun), `pnpm-lock.yaml` (pnpm), `yarn.lock` (Yarn), `package-lock.json` (npm), `deno.lock` (Deno), `uv.lock` (uv), `poetry.lock` (Poetry), `Cargo.lock`, `composer.lock`, `Gemfile.lock`, `go.sum`.
+3. **`package.json`** : champ `packageManager` (ex. `"bun@1.2.0"`), `engines`, `scripts` (appels `bun run`, `bunx`, `pnpm`, `tsc`, `vite`, etc.), `type`, dépendances révélant les frameworks (`react`, `vue`, `next`, `astro`, `svelte`, `hono`, `express`, `elysia`, `vitest`, `playwright`).
+4. **Configuration des outils** : `tsconfig.json`, `vite.config.*`, `next.config.*`, `nuxt.config.*`, `astro.config.*`, `svelte.config.*`, `angular.json`, `wrangler.toml`, `vercel.json`, `netlify.toml`, `fly.toml`, `Dockerfile`, `docker-compose.yml`, `prisma/schema.prisma`, `drizzle.config.*`, `vitest.config.*`, `jest.config.*`, `playwright.config.*`, `.github/workflows/*.yml`.
+5. **Autres écosystèmes** : `pyproject.toml`, `requirements*.txt`, `Pipfile`, `Cargo.toml`, `go.mod`, `composer.json`, `Gemfile`, `pom.xml`, `build.gradle*`, `*.csproj`, `mix.exs`, `CMakeLists.txt`, `Package.swift`, `Makefile.PL`, `cpanfile`.
+6. **Runners de tâches** : `Makefile`, `justfile`, `Taskfile.yml`.
+7. **Indices dans le code et la CI** : grep des commandes dans les workflows et scripts (`bun `, `bunx`, `npx`, `pnpm`, `yarn`, `uv run`, `poetry`) ; imports propres à un runtime (`bun:test`, `Bun.serve`, `Deno.`) ; extensions présentes via `git ls-files`.
+
+Si les sources se contredisent (README qui documente `npm` alors que le verrou est `bun.lock`), le verrou, `mise.toml` et `packageManager` font foi. Signaler l'écart comme incohérence de documentation (section 5), et utiliser le gestionnaire réel dans toutes les commandes proposées.
+
+Respecter la philosophie de l'outillage choisi. Exemple : si le projet utilise Bun (`bun.lock`, `packageManager` à `bun@…`, `mise.toml` avec `bun`), toutes les commandes proposées passent par `bun`, `bunx` et `bun run`, et jamais par `npm`, `npx` ou `yarn`. Ne jamais proposer de créer un `package-lock.json` dans un projet Bun.
 
 ### Outils d'analyse
 
 Quand le langage et le projet s'y prêtent, s'appuyer d'abord sur les outils dédiés, puis compléter par grep et lecture du code pour ce qu'ils ne voient pas (appels dynamiques, enregistrements par convention, logique équivalente).
 
 - Vérifier si l'outil est déjà disponible : dépendance du projet, script dans la configuration (`package.json`, `pyproject.toml`, `composer.json`, `Makefile`), binaire dans le `PATH`.
-- Ne jamais installer un outil, ni modifier la configuration du projet, sans accord de l'utilisateur. Proposer l'installation si l'outil apporte un gain net ; sinon, continuer sans.
+- Ne jamais installer un outil, ni modifier la configuration du projet ou le code, sans accord explicite de l'utilisateur. Proposer l'installation si l'outil apporte un gain net ; sinon, continuer sans.
 - Lancer les outils sur le périmètre retenu uniquement, avec les exclusions de la section précédente.
 - Les résultats d'outils restent des indices : chaque constat est vérifié dans le code avant d'entrer dans le rapport.
 
 | Langage                 | Code mort                                                                                                                           | Doublons                           |
 | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| TypeScript / JavaScript | `knip`, `tsc --noUnusedLocals --noUnusedParameters`, `oxlint` / `eslint` (`no-unused-vars`, `no-unreachable`), `depcheck`           | `jscpd`, PMD CPD                   |
+| TypeScript / JavaScript | `knip`, `tsc --noEmit --noUnusedLocals --noUnusedParameters`, `oxlint` / `eslint` (`no-unused-vars`, `no-unreachable`), `depcheck`  | `jscpd`, PMD CPD                   |
 | Python                  | `vulture`, `ruff` (F401, F841, ARG), `pylint` (W0611, W0612, W0613)                                                                 | `pylint` (R0801), `jscpd`, PMD CPD |
 | PHP                     | `psalm --find-dead-code`, `phpstan`                                                                                                 | `jscpd`, PMD CPD                   |
 | C / C++                 | `cppcheck --enable=unusedFunction`, `clang-tidy`, `-Wunused -Wunreachable-code`, `-Wl,--gc-sections,--print-gc-sections`            | PMD CPD, `jscpd`                   |
@@ -94,7 +123,7 @@ Méthode suggérée :
 ### Formateur et linter
 
 1. **Détecter** ceux que le projet utilise : fichiers de configuration (`.prettierrc*`, `.oxfmtrc.json`, `biome.json`, `dprint.json`, `.editorconfig`, `eslint.config.*`, `.oxlintrc.json`, `pyproject.toml` sections `[tool.black]` / `[tool.ruff]`, `.flake8`, `.clang-format`, `.clang-tidy`, `rustfmt.toml`, `.golangci.yml`, `.php-cs-fixer.php`, `phpstan.neon`, `.perltidyrc`, `.perlcriticrc`), scripts du projet (`format`, `format:check`, `lint` dans `package.json`, `Makefile`, `composer.json`), dépendances de développement.
-2. **Lancer en mode vérification seulement**, jamais en mode écriture pendant l'analyse : par exemple `prettier --check`, `oxfmt --check`, `biome check`, `black --check`, `ruff format --check`, `gofmt -l`, `cargo fmt --check`, `clang-format --dry-run --Werror`, `php-cs-fixer fix --dry-run`, `perltidy` comparé au fichier d'origine. Pour le linter, utiliser le script du projet s'il existe.
+2. **Lancer en mode vérification seulement** (règle de lecture seule ci-dessus) : par exemple `prettier --check`, `oxfmt --check`, `biome check`, `black --check`, `ruff format --check`, `gofmt -l`, `cargo fmt --check`, `clang-format --dry-run --Werror`, `php-cs-fixer fix --dry-run`, `perltidy` comparé au fichier d'origine. Pour le linter, utiliser le script du projet s'il existe.
 3. **Rapporter** : outil et commande utilisés, nombre de fichiers non formatés, nombre d'erreurs et d'avertissements de lint, par règle.
 4. **Sans formateur ou sans linter** : le signaler et proposer dans les questions l'outil standard du langage (Prettier ou oxfmt, Black ou Ruff, gofmt, rustfmt, clang-format, perltidy, etc.), sans l'installer.
 
@@ -157,7 +186,7 @@ Le rapport est une to-do list qu'un modèle peu capable, sans accès à cette co
 
 Sections, dans l'ordre :
 
-1. **En-tête** : date, périmètre et exclusions, commit, langages, outils lancés, commandes de vérification du projet (compilation, linter, formateur en mode vérification, tests).
+1. **En-tête** : date, périmètre et exclusions, commit, stack détectée (runtime, gestionnaire de paquets, sources consultées), outils lancés, commandes de vérification du projet (compilation, linter, formateur en mode vérification, tests).
 2. **Mode d'emploi pour l'exécutant** : recopier tel quel celui du modèle.
 3. **État du code** : formateur et linter détectés, résultat de leur vérification, tableau des fichiers trop longs, état de la documentation (README au test des 30 secondes, fichiers d'instructions pour l'IA, commandes non documentées ou obsolètes).
 4. **Tâches** : uniquement les constats de confiance **Sûr**, classés du plus sûr au plus risqué, puis par gain. Placer en dernier les tâches de formatage et de correction automatique du lint (`--fix`) : elles modifient le texte du code et invalideraient les textes d'ancrage des autres tâches.
@@ -187,6 +216,7 @@ Règles de rédaction :
 
 ## Critères de qualité du rapport
 
+- Aucun fichier du dépôt modifié hors rapport : `git status --short` identique avant et après l'analyse.
 - Chaque tâche cite un fichier, des lignes et un texte d'ancrage réels, vérifiés dans le code.
 - Chaque suppression proposée a été recherchée dans tout le dépôt.
 - Chaque action est exécutable sans interprétation : un exécutant qui ne connaît ni le projet ni cette conversation peut l'appliquer.
