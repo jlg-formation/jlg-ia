@@ -33,12 +33,14 @@ bun plugins/orsys/skills/squizzer-qcm/scripts/check-duplicates.ts <fichier.yaml>
 ### Dualité des manifestes
 
 Chaque plugin expose deux manifestes parallèles :
+
 - `plugins/<plugin>/plugin.json` — GitHub Copilot (VSCode agent plugins API)
 - `plugins/<plugin>/.claude-plugin/plugin.json` — Claude Code CLI marketplace
 
 ### Structure d'un skill
 
 Chaque skill est un sous-dossier de `plugins/<plugin>/skills/<name>/` contenant :
+
 - **SKILL.md** : frontmatter YAML (`name`, `description`, `disable-model-invocation`) + pipeline complet.
 - **scripts/** : utilitaires Bun/TypeScript (validation, assemblage, déduplication). Chaque script sort avec code 0 (succès), 1 (erreur logique), 2 (mauvais arguments).
 - **assets/** : schémas JSON, exemples de référence, sorties générées.
@@ -62,19 +64,20 @@ Le fichier `.livre-state.json` est la source de vérité : il trace phase, hashe
 
 ### Plugin `orsys`
 
-| Slash command | Skill | Sortie |
-|---|---|---|
-| `/xxxpf` | Plan de formation ORSYS | `input/plan-<slug>.md` |
-| `/xxxli` | Livre pédagogique complet | `/livres/<slug>/` |
+| Slash command   | Skill                       | Sortie                       |
+| --------------- | --------------------------- | ---------------------------- |
+| `/xxxpf`        | Plan de formation ORSYS     | `input/plan-<slug>.md`       |
+| `/xxxli`        | Livre pédagogique complet   | `/livres/<slug>/`            |
 | `/squizzer-qcm` | QCM au format Squizzer YAML | `assets/qcm/qcm-<slug>.yaml` |
 
 ### Plugin `jlg-tools`
 
-| Slash command | Skill | Description |
-|---|---|---|
-| `/restructure` | Réécriture de prompt IA | Optimise un fichier prompt en prompt engineering |
-| `/clarify` | Clarification de discussion | Génère des questions de clarification à partir d'une discussion |
-| `/ux-audit` | Audit ergonomique | Audite une URL, du code front ou des maquettes selon ux-audit.github.io ; produit `ux-audit/<slug>/rapport.md` + captures annotées |
+| Slash command  | Skill                       | Description                                                                                                                        |
+| -------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `/restructure` | Réécriture de prompt IA     | Optimise un fichier prompt en prompt engineering                                                                                   |
+| `/clarify`     | Clarification de discussion | Génère des questions de clarification à partir d'une discussion                                                                    |
+| `/realigne`    | Réalignement front-end      | Met un projet Vite sur Bun (mise), formatage et lint OXC                                                                           |
+| `/ux-audit`    | Audit ergonomique           | Audite une URL, du code front ou des maquettes selon ux-audit.github.io ; produit `ux-audit/<slug>/rapport.md` + captures annotées |
 
 ## Tests
 
