@@ -67,9 +67,22 @@ Ne pas ajouter de tâches de test ni d'autres sections à `mise.toml`. Si la ver
 - Ne pas recréer les règles des anciennes configurations. Les lister dans le compte rendu lorsqu'elles n'ont pas d'équivalent OXC par défaut.
 - CI : si un workflow (par exemple `.github/workflows/*.yml`) appelle Prettier ou ESLint, remplacer ces appels par `oxfmt` et `oxlint` (ou par `bun run format:check` et `bun run lint`).
 - Hors périmètre : hooks Git (Husky, lint-staged) et tests. Ne pas les modifier.
-- Ne pas créer de documentation (README, markdown) pour ces changements.
+- Ne pas créer de README ni d'autre documentation pour ces changements. Seul `AGENTS.md` est créé (étape 6).
 
-### 6. Vérifier
+### 6. Documenter pour les agents IA
+
+Créer `AGENTS.md` à la racine du projet pour que les agents IA utilisent Bun, OXC et Vite au lieu de npm, Prettier ou ESLint. Ce fichier décrit :
+
+- les commandes à utiliser : `bun install`, `bun add` / `bun add -d`, `bun run <script>` ;
+- l'interdiction d'utiliser `npm`, `npx`, `yarn`, `pnpm` et de créer `package-lock.json`, `yarn.lock` ou `pnpm-lock.yaml` ;
+- le lockfile `bun.lock` et la version de Bun figée dans `mise.toml` (ne pas la modifier sans demande) ;
+- les scripts de formatage et de lint (`bun run format`, `bun run format:check`, `bun run lint`, `bun run lint:fix`, `bun run check`) et l'interdiction de réintroduire Prettier ou ESLint ;
+- les scripts Vite (`bun run dev`, `bun run build`, `bun run preview`) ;
+- la vérification à effectuer avant de finir une tâche : `bun run check` puis `bun run build`.
+
+Si `AGENTS.md` existe déjà, ajouter une section « Outillage » sans écraser le contenu existant. Si `CLAUDE.md` existe, y ajouter une ligne renvoyant vers `AGENTS.md`, car Claude Code lit `CLAUDE.md`.
+
+### 7. Vérifier
 
 Exécuter dans l'ordre :
 
@@ -81,7 +94,7 @@ Exécuter dans l'ordre :
 
 Rapporter à l'utilisateur les fichiers modifiés et le résultat de chaque commande.
 
-### 7. Corriger les erreurs et warnings de lint
+### 8. Corriger les erreurs et warnings de lint
 
 - Lister les erreurs et warnings restants de `bun run lint`, puis demander confirmation avant toute modification de code.
 - Après confirmation, corriger toutes les erreurs et tous les warnings, y compris par refactorisation si nécessaire.
@@ -91,6 +104,7 @@ Rapporter à l'utilisateur les fichiers modifiés et le résultat de chaque comm
 ## Critères de fin
 
 - `mise.toml` existe et déclare Bun.
+- `AGENTS.md` existe à la racine et décrit les commandes Bun, OXC et Vite.
 - Vite est utilisé pour `dev` et `build`.
 - `bun run format`, `bun run format:check` et `bun run lint` existent et s'exécutent sans erreur.
 - `bun run check` réussit.
